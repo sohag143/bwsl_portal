@@ -1,0 +1,176 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BWSL | Deposit Entry</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        body { 
+            background-color: #ffffff; 
+            color: #000000; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 0;
+        }
+
+        /* ড্যাশবোর্ডের মতো লোগো জলছাপ */
+        body::before {
+            content: "";
+            background-image: url("{% static 'images/logo.png' %}");
+            background-repeat: no-repeat;
+            background-position: center bottom 20%;
+            background-size: 25%;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.05;
+        }
+
+        .entry-card {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            z-index: 1;
+        }
+
+        .form-label { font-weight: 600; color: #444; font-size: 0.9rem; }
+
+        .form-control, .form-select {
+            border: 2px solid #eee;
+            border-radius: 10px;
+            padding: 12px;
+            transition: 0.3s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #00c853;
+            box-shadow: none;
+            background-color: #f8fff8;
+        }
+
+        .btn-submit {
+            background-color: #00c853;
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .btn-submit:hover { background-color: #00a944; transform: translateY(-2px); }
+
+        .btn-back {
+            color: #666;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            background-color: #f0fff0;
+            color: #00c853;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.5rem;
+            border: 2px solid #00c853;
+        }
+
+        /* বাম পাশের ব্যাক বাটন পজিশন */
+        .top-back-nav {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-back-nav">
+        <a href="{% url 'index' %}" class="text-decoration-none text-dark fw-bold">
+            <i class="bi bi-arrow-left-circle-fill"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="entry-card text-center">
+        <div class="icon-circle">
+            <i class="bi bi-plus-lg"></i>
+        </div>
+        <h4 class="fw-bold mb-1">Deposit Entry (Credit)</h4>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show mt-3 mb-0" role="alert" style="font-size: 0.85rem; border-radius: 10px;">
+                    <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% else %}bi-exclamation-triangle-fill{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <p class="text-muted small mb-4 mt-3">নতুন জমা এন্ট্রি করার জন্য নিচের ফরমটি পূরণ করুন</p>
+
+        <form method="POST" class="text-start">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Date</label>
+                <input type="date" name="date" max="9999-12-31" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Purpose</label>
+                <select name="purpose" class="form-select" required style="cursor: pointer;">
+                    <option value="" disabled selected>Select your purpose</option>
+                    {% for p in purposes %}
+                        <option value="{{ p.name }}">{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Deposit Amount</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">৳</span>
+                    <input type="number" name="amount" class="form-control border-start-0" placeholder="0.00" step="0.01" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Remarks</label>
+                <textarea name="remarks" class="form-control" rows="2" placeholder="Enter your remakrs..." style="border-radius: 10px;"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-submit">
+                <i class="bi bi-check2-circle me-2"></i> Confirm Submission
+            </button>
+        </form>
+
+        <a href="{% url 'index' %}" class="btn-back">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BWSL | Purpose Entry</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .top-back-nav {position: absolute; top: 20px; left: 20px; z-index: 10; }
+        body { background-color: #ffffff; padding: 20px; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .top-nav { width: 100%; max-width: 450px; margin-bottom: 20px; text-align: left; }
+        .entry-card { border: 1px solid #dee2e6; border-radius: 20px; padding: 30px; width: 100%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
+        .btn-submit { background-color: #0d6efd; color: white; border-radius: 10px; width: 100%; font-weight: bold; padding: 12px; border: none; transition: 0.3s; }
+        .btn-submit:hover { background-color: #0b5ed7; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="top-back-nav">
+        <a href="{% url 'index' %}" class="back-link">
+            <i class="bi bi-arrow-left-circle-fill fs-5"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="entry-card">
+        <div class="mb-3 text-primary" style="font-size: 2.5rem;">
+            <i class="bi bi-gear-wide-connected"></i>
+        </div>
+        <h4 class="fw-bold">Create New Purpose</h4>
+        <p class="text-muted small">Enter the purpose for which the deposit and payment will be made.</p>
+
+        <form method="POST" class="text-start">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="form-label fw-bold">Purpose Name</label>
+                <input type="text" name="purpose_name" class="form-control" placeholder="যেমন: Salary, Office Rent, Electricity Bill" required>
+            </div>
+            <button type="submit" class="btn btn-submit">
+                <i class="bi bi-save me-2"></i> Save Purpose
+            </button>
+        </form>
+    </div>
+</body>
+</html>
+
