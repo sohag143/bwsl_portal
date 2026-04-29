@@ -16,8 +16,6 @@
             min-height: 100vh;
             margin: 0;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
             position: relative;
         }
         
@@ -33,79 +31,53 @@
             opacity: 0.05;
         }
 
-        .top-nav {
-            margin-bottom: -30px; /* মার্জিন কমানো হয়েছে যাতে কন্টেন্ট উপরে ওঠে */
-            z-index: 2;
-        }
-
-        .back-link {
-            text-decoration: none;
-            color: #000;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .main-container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; 
-            flex-grow: 1;
-            padding-top: -10px; /* এটি আপনার প্রয়োজনমতো কমিয়ে বাড়িয়ে উচ্চতা ঠিক করতে পারবেন */
-        }
+        .top-nav { margin-bottom: 20px; z-index: 2; }
+        .back-link { text-decoration: none; color: #000; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; }
 
         .entry-card {
             background-color: #ffffff;
             border: 1px solid #dee2e6;
             border-radius: 20px;
             padding: 30px;
-            width: 100%;
-            max-width: 450px;
+            height: 100%;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            z-index: 1;
+            transition: 0.3s;
         }
 
+        .bulk-card { border: 2px dashed #198754; background-color: #f8fff9; }
         .form-label { font-weight: 600; color: #444; font-size: 0.9rem; }
 
         .form-control, .form-select {
             border: 2px solid #eee;
             border-radius: 10px;
-            padding: 12px;
+            padding: 10px;
             transition: 0.3s;
         }
 
-        .form-control:focus, .form-select:focus {
-            border-color: #ff1744;
-            box-shadow: none;
-            background-color: #fff8f8;
-        }
-
-        .btn-submit {
-            background-color: #ff1744;
-            border: none;
-            color: white;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: bold;
-            width: 100%;
-            transition: 0.3s;
-        }
-
-        .btn-submit:hover { background-color: #d50000; transform: translateY(-2px); }
+        .form-control:focus, .form-select:focus { border-color: #ff1744; box-shadow: none; background-color: #fff8f8; }
+        .btn-submit { background-color: #ff1744; border: none; color: white; padding: 12px; border-radius: 10px; font-weight: bold; width: 100%; transition: 0.3s; }
+        .btn-bulk-process { background-color: #198754; border: none; }
+        .btn-submit:hover { transform: translateY(-2px); opacity: 0.9; }
 
         .icon-circle {
-            width: 60px;
-            height: 60px;
-            background-color: #fff0f0;
-            color: #ff1744;
+            width: 50px; height: 50px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 1.5rem;
-            border: 2px solid #ff1744;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 1.2rem;
+            border: 2px solid;
+        }
+        .icon-manual { background-color: #fff0f0; color: #ff1744; border-color: #ff1744; }
+        .icon-excel { background-color: #e8f5e9; color: #198754; border-color: #198754; }
+        
+        /* Sample Format Style */
+        .format-box {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -117,69 +89,129 @@
         </a>
     </nav>
 
-    <div class="main-container">
-        <div class="entry-card text-center">
-            <div class="icon-circle">
-                <i class="bi bi-dash-lg"></i>
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    <i class="bi bi-info-circle me-2"></i> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row g-4">
+            <div class="col-md-5">
+                <div class="entry-card text-center">
+                    <div class="icon-circle icon-manual">
+                        <i class="bi bi-pencil-square"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1">Manual Payment Entry</h5>
+                    <p class="text-muted small mb-4">Enter the payment one by one</p>
+
+                    <form method="POST" class="text-start">
+                        {% csrf_token %}
+                        <input type="hidden" name="entry_type" value="manual">
+                        <div class="mb-3">
+                            <label class="form-label">Date</label>
+                            <input type="date" name="date" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Payment Type</label>
+                            <select name="purpose" class="form-select" required>
+                                <option value="" disabled selected>Select Payment Type</option>
+                                {% for p in purposes %}
+                                    <option value="{{ p.name }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white">৳</span>
+                                <input type="number" name="amount" class="form-control" placeholder="0.00" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Remarks</label>
+                            <textarea name="remarks" class="form-control" rows="2" placeholder="Write your any remakrs..."></textarea>
+                        </div>
+                        <button type="submit" name="action" value="manual_save" class="btn btn-submit">Confirm Payment</button>
+                    </form>
+                </div>
             </div>
-            <h4 class="fw-bold mb-1">Payment Entry (Debit)</h4>
 
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show mt-3 mb-0" role="alert" style="font-size: 0.85rem; border-radius: 10px;">
-                        <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% else %}bi-exclamation-triangle-fill{% endif %} me-2"></i>
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="col-md-7">
+                <div class="entry-card bulk-card text-center">
+                    <div class="icon-circle icon-excel">
+                        <i class="bi bi-file-earmark-spreadsheet-fill"></i>
                     </div>
-                {% endfor %}
-            {% endif %}
-            
-            <p class="text-muted small mb-4 mt-3">নতুন পেমেন্ট এন্ট্রি করার জন্য নিচের ফরমটি পূরণ করুন</p>
+                    <h5 class="fw-bold mb-1">Bulk Payment (CSV)</h5>
+                    <p class="text-muted small mb-3">If there is a bKash number, it will be 'Paid', if not, it will be 'Unpaid'</p>
 
-            <form method="POST" class="text-start">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label">Date</label>
-                    <input type="date" name="date" max="9999-12-31" class="form-control" required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Purpose</label>
-                    <select name="purpose" class="form-select" required style="cursor: pointer;">
-                        <option value="" disabled selected>Select your purpose</option>
-                        {% for p in purposes %}
-                            <option value="{{ p.name }}">{{ p.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label">Payment Amount</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0">৳</span>
-                        <input type="number" name="amount" class="form-control border-start-0" placeholder="0.00" step="0.01" required>
+                    <div class="format-box">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold text-dark"><i class="bi bi-file-text-fill me-1"></i> Download Upload Formet:</span>
+                            <a href="{% static 'samples/payment_sample.csv' %}" class="btn btn-sm btn-dark" download="payment_sample.csv">
+                                <i class="bi bi-download"></i> Download Sample CSV
+                            </a>
+                        </div>
+                        <div class="p-2 bg-white rounded border border-warning">
+                            <code class="text-danger fw-bold">section, card_no, bkash_number, name, designation, amount, bkash_fee, total_amount</code><br>
+                            <span class="text-muted small">Example: 01712XXXXXX, 500.00</span>
+                        </div>
+                        <small class="text-secondary d-block mt-2" style="font-size: 0.7rem;">
+                            * ফাইলটি অবশ্যই <b>.csv</b> ফরম্যাটে হতে হবে এবং প্রথম লাইনে কলামের নাম থাকতে হবে।
+                        </small>
                     </div>
-                </div>
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Remarks</label>
-                    <textarea name="remarks" class="form-control" rows="2" placeholder="Enter your remarks..." style="border-radius: 10px;"></textarea>
-                </div>
+                    <form method="POST" enctype="multipart/form-data" class="text-start">
+                        {% csrf_token %}
+                        <input type="hidden" name="entry_type" value="bulk">
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Select Month/Date</label>
+                                <input type="date" name="date" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Purpose (Head)</label>
+                                <select name="purpose" class="form-select" required>
+                                    <option value="" disabled selected>Select head</option>
+                                    {% for p in purposes %}
+                                        <option value="{{ p.name }}">{{ p.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
 
-                <button type="submit" class="btn btn-submit">
-                    <i class="bi bi-check2-circle me-2"></i> Confirm Payment
-                </button>
+                        <div class="mb-3">
+                            <label class="form-label">Upload CSV File</label>
+                            <div class="input-group">
+                                <input type="file" name="excel_file" class="form-control" accept=".csv" required>
+                                <button type="submit" name="action" value="upload" class="btn btn-outline-success">
+                                    <i class="bi bi-upload"></i> Upload
+                                </button>
+                            </div>
+                        </div>
 
-                <div class="text-center mt-3">
-                    <a href="{% url 'index' %}" class="text-decoration-none text-muted small">
-                        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
-                    </a>
+                        <div class="mb-4">
+                            <label class="form-label">Bulk Remarks</label>
+                            <textarea name="bulk_remarks" class="form-control" rows="2" placeholder="এই ব্যাচের জন্য কোনো নোট থাকলে এখানে লিখুন..."></textarea>
+                        </div>
+
+                        <button type="submit" name="action" value="process" class="btn btn-submit btn-bulk-process py-3">
+                            <i class="bi bi-gear-fill me-2"></i> Click to Process Payment
+                        </button>
+
+                        <div class="mt-3 text-center text-muted" style="font-size: 0.75rem;">
+                            <i class="bi bi-info-circle-fill text-success"></i> প্রথমে ফাইল <b>Upload</b> করুন, তারপর <b>Process</b> বাটনে ক্লিক করুন।
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

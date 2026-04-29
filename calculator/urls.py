@@ -11,4 +11,9 @@ urlpatterns = [
     path('delete/<int:pk>/', views.delete_transaction, name='delete_transaction'),
     path('summary/<str:purpose_name>/', views.purpose_summary, name='purpose_summary'),
     path('export/exce;/', views.export_transactions_excel, name='export_excel'),
+    path('paid/salary/', views.salary_paid_list, name='salary_paid_list'),
+    path('paid/tiffin/', views.tiffin_paid_list, name='tiffin_paid_list'),
+    path('unpaid/salary/', views.salary_unpaid_list, name='salary_unpaid_list'),
+    path('unpaid/tiffin/', views.tiffin_unpaid_list, name='tiffin_unpaid_list'),
+    path('history-summary/', views.history_summary, name='history_summary'),
 ]

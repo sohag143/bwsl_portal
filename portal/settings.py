@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-o@pa(iqj#w3$+mcfag8c_3y8uboe^60v!03bh2_ly8q6e1r6!a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['www.bwsl-portal.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['www.bwsl-portal.com', '10.10.54.200', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -112,4 +112,6 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 import os
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [
+    BASE_DIR, 'static'
+]
